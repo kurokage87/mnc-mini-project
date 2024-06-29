@@ -23,10 +23,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	c := cron.New()
+	c := cron.New(cron.WithSeconds())
 
 	// Add a job that runs every 10 minutes
-	c.AddFunc("0/5 * * * ?", func() {
+	c.AddFunc("0 */1 * * * *", func() {
 		fmt.Println("Start Running Cron Update Status")
 		err = service.UpdateStatus(context.Background())
 		if err != nil {
