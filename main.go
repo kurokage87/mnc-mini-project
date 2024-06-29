@@ -23,18 +23,20 @@ func main() {
 		log.Fatal(err)
 	}
 
-	cronJob := cron.New()
-	cronJob.AddFunc("*/1 * * * * *", func() {
-		fmt.Println("Start Running Cron")
-		fmt.Println("Start Running Cron Update Status Transaction")
-		err := service.UpdateStatus(context.Background())
+	c := cron.New()
+
+	// Add a job that runs every 10 minutes
+	c.AddFunc("0/5 * * * ?", func() {
+		fmt.Println("Start Running Cron Update Status")
+		err = service.UpdateStatus(context.Background())
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println(err.Error())
 			return
 		}
 	})
 
-	cronJob.Start()
+	// Start the cron scheduler
+	c.Start()
 
 	router := routers.Route()
 	router.Run(":3000")
