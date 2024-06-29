@@ -423,14 +423,14 @@ func UpdateStatus(ctx context.Context) (err error) {
 	// loop data for update database and delete data in redis
 	go func() (err error) {
 		for i, _ := range keys {
-			if errUpdate := db.Model(&model.Transaction{}).Where("transaction_id = ?", values[i]).Update("status", "S").Error; err != nil {
+			if errUpdate := db.Model(&model.Transaction{}).Where("transaction_id = ?", values[i]).Update("status", constant.TransactionStatusSuccess).Error; err != nil {
 				errUpdate = errors.New(fmt.Sprintf("failed update transaction to redis id %s", values[i]))
 				return errUpdate
 			}
 
 			_, errDeleteRedis := config.RedisClient.Del(ctx, fmt.Sprintf(constant.TransactionPrefix, values[i])).Result()
 			if errDeleteRedis != nil {
-				db.Model(&model.Transaction{}).Where("transaction_id = ?", values[i]).Update("status", "F")
+				db.Model(&model.Transaction{}).Where("transaction_id = ?", values[i]).Update("status", constant.TransactionStatusFailed)
 				errDeleteRedis = errors.New(fmt.Sprintf("failed delete transaction to redis id %s", values[i]))
 				return errDeleteRedis
 			}
